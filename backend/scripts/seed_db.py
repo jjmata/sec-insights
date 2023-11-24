@@ -6,6 +6,7 @@ from fire import Fire
 import s3fs
 from app.core.config import settings
 import upsert_db_sec_documents
+import upsert_db_jpa_documents
 import download_sec_pdf
 from download_sec_pdf import DEFAULT_CIKS, DEFAULT_FILING_TYPES
 import seed_storage_context
@@ -59,6 +60,31 @@ Done! 🏁
         )
 
 
+async def async_seed_db_jpa():
+    with TemporaryDirectory() as temp_dir:
+        print("Copying JPA docs to S3")
+        copy_to_s3("../JPA")
+
+        print("Upserting records of JPA docs into database")
+        await upsert_db_jpa_documents.async_upsert_documents_from_filings(
+            doc_dir="../JPA",
+        )
+
+        print("Seeding storage context")
+        await seed_storage_context.async_main_seed_storage_context()
+        print(
+            """
+Done! 🏁
+\t- JPA PDF documents uploaded to the S3 assets bucket ✅
+\t- Documents database table has been populated ✅
+\t- Vector storage table has been seeded with embeddings ✅
+        """.strip()
+        )
+
+
+def seed_db_jpa():
+    asyncio.run(async_seed_db_jpa())
+    
 def seed_db(
     ciks: List[str] = DEFAULT_CIKS, filing_types: List[str] = DEFAULT_FILING_TYPES
 ):
@@ -66,4 +92,4 @@ def seed_db(
 
 
 if __name__ == "__main__":
-    Fire(seed_db)
+    Fire(seed_db_jpa)

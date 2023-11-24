@@ -74,6 +74,13 @@ seed_db_preview:
 	# only need to populate with two companies for Preview
 	poetry run python scripts/seed_db.py  --ciks '["0001018724", "1326801"]'
 
+seed_db_jpa:
+	echo "Seeding database for local with JPA sample docs."
+	docker compose create db
+	docker compose start db
+	make setup_localstack
+	python scripts/seed_db.py
+
 seed_db_local:
 	echo "Seeding database for local."
 	docker compose create db

@@ -78,19 +78,26 @@ def fetch_and_read_document(
     document: DocumentSchema,
 ) -> List[LlamaIndexDocument]:
     # Super hacky approach to get this to feature complete on time.
-    # TODO: Come up with better abstractions for this and the other methods in this module.
+    # TODO: Come up with better abstractions for this and the other methods in this module. 
     with TemporaryDirectory() as temp_dir:
         temp_file_path = Path(temp_dir) / f"{str(document.id)}.pdf"
-        with open(temp_file_path, "wb") as temp_file:
-            with requests.get(document.url, stream=True) as r:
-                r.raise_for_status()
-                for chunk in r.iter_content(chunk_size=8192):
-                    temp_file.write(chunk)
-            temp_file.seek(0)
+        if document.url.startswith("file:///"):
             reader = PDFReader()
             return reader.load_data(
-                temp_file_path, extra_info={DB_DOC_ID_KEY: str(document.id)}
+                Path(document.url[7:]), extra_info={DB_DOC_ID_KEY: str(document.id)}
             )
+        else:
+            with open(temp_file_path, "wb") as temp_file:
+                print("URL: ", document.url)
+                with requests.get(document.url, stream=True) as r:
+                    r.raise_for_status()
+                    for chunk in r.iter_content(chunk_size=8192):
+                        temp_file.write(chunk)
+                temp_file.seek(0)
+                reader = PDFReader()
+                return reader.load_data(
+                    temp_file_path, extra_info={DB_DOC_ID_KEY: str(document.id)}
+                )
 
 
 def build_description_for_document(document: DocumentSchema) -> str:

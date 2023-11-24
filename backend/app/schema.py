@@ -125,6 +125,7 @@ class DocumentMetadataKeysEnum(str, Enum):
     """
 
     SEC_DOCUMENT = "sec_document"
+    JPA_DOCUMENT = "jpa_document"
 
 
 class SecDocumentTypeEnum(str, Enum):
@@ -134,6 +135,15 @@ class SecDocumentTypeEnum(str, Enum):
 
     TEN_K = "10-K"
     TEN_Q = "10-Q"
+
+
+class JpaDocumentTypeEnum(str, Enum):
+    """
+    Enum for the type of sec document
+    """
+
+    ACTA = "ACTA"
+    ESCRITURA = "ESCRITURA"
 
 
 class SecDocumentMetadata(BaseModel):
@@ -149,6 +159,20 @@ class SecDocumentMetadata(BaseModel):
     accession_number: Optional[str]
     cik: Optional[str]
     period_of_report_date: Optional[datetime]
+    filed_as_of_date: Optional[datetime]
+    date_as_of_change: Optional[datetime]
+
+
+class JpaDocumentMetadata(BaseModel):
+    """
+    Metadata for a document that is a JPA document
+    """
+
+    notary_name: str
+    doc_type: JpaDocumentTypeEnum
+    year: int
+    num_protocolo: Optional[str]
+    date_signed: Optional[datetime]
     filed_as_of_date: Optional[datetime]
     date_as_of_change: Optional[datetime]
 

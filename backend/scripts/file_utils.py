@@ -157,6 +157,30 @@ def get_available_filings(output_dir: str) -> List[Filing]:
     return filings
 
 
+def get_available_docs(output_dir: str) -> List[Filing]:
+    data_dir = Path(output_dir)
+    jpa_docs = []
+    for doc_file in data_dir.iterdir():
+        if doc_file.exists():
+            file_path = str(doc_file.absolute())
+            quarter = None
+            filing = Filing(
+                file_path=file_path,
+                notary_name="Test",
+                doc_type="ESCRITURA",
+                year=2023,
+                symbol = "",
+                filing_type = "",
+                cik = "",
+                accession_number = "",
+                period_of_report_date = datetime.datetime.now(),
+                filed_as_of_date = datetime.datetime.now(),
+                date_as_of_change = datetime.datetime.now()
+            )
+            jpa_docs.append(filing)
+    return jpa_docs
+
+
 def get_available_filings_as_df(output_dir: str) -> pd.DataFrame:
     filings = get_available_filings(output_dir)
     return pd.DataFrame([filing.dict() for filing in filings])
